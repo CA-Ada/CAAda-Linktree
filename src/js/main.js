@@ -4,32 +4,52 @@ const icons = {
   book: "assets/social/book.svg",
   form: "assets/social/formularios-do-google.svg",
   stack_paper: "assets/social/stack_paper.svg",
-  diploma: "assets/social/icons8-diploma-1-96.png",
+  certificate: "assets/social/icons8-diploma-1-96.png",
 };
 
 /**
  * Properties
  *
- * - Type {String}
+ * - Type {String} !Required
  * **Multiples**: When clicking the card a list appears with other links
  * **Single**: When clicking the card a link is opened
  *
- * - Title {String | Node}
+ * - Title {String | Node} !Required
  * The title of the card
  *
- * - Description {String | Node}
+ * - Description {String | Node} !Required
  * The description of the card
  *
- * - Link {String}
+ * - Link {String} !Required
  * The link of the card
  *
- * - Icon {String}
+ * - Icon {String} !Required
  * Path to the icon of the card
  *
  * - Date {Date}
  * Until which date the card will be displayed
  */
 const items = [
+  {
+    type: "multiples",
+    title: "Test Item title",
+    description: "Test Item description",
+    link: [
+      {
+        title: "SubItem title",
+        description: "Test Item description",
+        link: "https://www.google.com",
+        icon: icons.certificate,
+      },
+      {
+        title: "SubItem title",
+        description: "Test Item description",
+        link: "https://www.google.com",
+        icon: icons.certificate,
+      },
+    ],
+    icon: icons.stack_paper,
+  },
   {
     type: "single",
     title: "O que são atividades complementares?",
@@ -102,11 +122,18 @@ function isHTML(str) {
   return Array.from(doc.body.childNodes).some((node) => node.nodeType === 1);
 }
 
+/**
+ * Creates a card item with the given properties
+ * 
+ * @param {Object} Data 
+ * @returns {Node} The card
+ */
 function createItem({ title, description, icon, link }) {
   const item = document.createElement("a");
+  item.id = title.replace(/\s/g, "");
   item.classList.add("hoverable");
   item.target = "_blank";
-  item.href = link;
+  link && (item.href = link);
   item.innerHTML = `
     <div class="cardLink_Icon">
       <img src="${icon}" alt="${title}" width='36px' height='36px'>
@@ -127,57 +154,14 @@ const renderItems = () => {
   items.forEach(({ type, title, description, link, icon, date }, index) => {
     if (date && isAfter(date)) return;
 
-    const item = document.createElement("a");
     const handleItem = {
-      single: () => {
-        item.classList.add("hoverable");
-        item.href = link;
-        item.innerHTML = `
-            <div class='cardLink_Icon'>
-              <img
-                alt='${title}'
-                width='36px'
-                height='36px'
-                src='${icon}'
-              />
-            </div>
-            <div class='cardLink_Text'>
-              ${isHTML(title) ? title : `<h2>${title}</h2>`}
-              ${
-                isHTML(description)
-                  ? description
-                  : `<span>${description}</span>`
-              }
-            </div>`;
-      },
-      multiple: () => {
-        item.id = title.replace(/\s/g, "");
-        item.classList.add("hoverable");
-        item.onclick = () => {
-          createList(item, getItems(index));
-        };
-        item.style.cursor = "pointer";
-        item.innerHTML = `
-            <div class='cardLink_Icon'>
-              <img 
-                alt="${title}" 
-                width="36px"
-                height="36px"
-                src="${icon}"
-              />
-            </div>
-            <div class="cardLink_Text">
-              ${isHTML(title) ? title : `<h2>${title}</h2>`}
-              ${
-                isHTML(description)
-                  ? description
-                  : `<span>${description}</span>`
-              }
-            </div>`;
+      single: () => createItem({ title, description, icon, link }),
+      multiples: () => {
+        const item = createItem({ title, description, icon });
+        item.onclick = () => createList(item, getItems(index));
+        return item;
       },
     };
-
-    handleItem[type]();
-    local.appendChild(item);
+    local.appendChild(handleItem[type]());
   });
 };
