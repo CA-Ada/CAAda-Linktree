@@ -43,6 +43,14 @@ const items = [
     date: StringToDate("01/05/2023"),
   },
   {
+    type: 'single',
+    title: "Outfit BCC",
+    description: "Requisite seu outfit do BCC 👌",
+    link: "https://forms.gle/YtDWARCQfKYPCemx8",
+    icon: icons.form,
+    date: StringToDate("21/11/2022"),
+  },
+  {
     type: "multiples",
     title: "Certificados Curto Circuitos",
     description: "Faça download dos certificados dos curto circuitos 🥳",
